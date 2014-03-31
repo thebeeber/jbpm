@@ -43,6 +43,7 @@ create table Attachment (
         mappingId numeric(19,0) identity not null,
         CONTEXT_ID varchar(255) not null,
         KSESSION_ID int not null,
+        OWNER_ID varchar(255),
         OPTLOCK int,
         primary key (mappingId)
     );
