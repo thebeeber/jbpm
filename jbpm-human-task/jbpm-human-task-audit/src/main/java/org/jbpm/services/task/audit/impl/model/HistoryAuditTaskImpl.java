@@ -18,7 +18,6 @@ package org.jbpm.services.task.audit.impl.model;
 
 import java.util.Date;
 import javax.persistence.Entity;
-import org.jbpm.services.task.audit.impl.model.api.AuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 
 /**

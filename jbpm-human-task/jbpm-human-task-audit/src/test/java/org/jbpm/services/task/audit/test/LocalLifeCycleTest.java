@@ -26,11 +26,9 @@ import org.jbpm.services.task.audit.index.IndexingTaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.index.LuceneIndexService;
 import org.jbpm.services.task.audit.index.TaskEventIndex;
 import org.jbpm.services.task.audit.index.UserAuditTaskIndex;
-import org.jbpm.services.task.audit.service.TaskAuditServiceImpl;
 import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.kie.internal.task.api.InternalTaskService;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;

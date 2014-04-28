@@ -17,7 +17,6 @@ package org.jbpm.services.task.audit.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import org.jbpm.services.task.audit.index.LuceneIndexService;
 import org.jbpm.services.task.audit.index.TaskEventIndex;
 import org.jbpm.services.task.audit.index.UserAuditTaskIndex;
 import org.jbpm.services.task.audit.service.TaskAuditService;
-import org.jbpm.services.task.audit.service.TaskIdComparator;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.impl.model.command.DeleteBAMTaskSummariesCommand;
 import org.jbpm.services.task.impl.model.command.GetBAMTaskSummariesCommand;
@@ -155,6 +153,27 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
     }
     
     
+    @Test
+    public void testExit() {
+        // One potential owner, should go straight to state Reserved
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Knights Templer' )],businessAdministrators = [ new User('Administrator') ], }),";
+        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
 
+        Task task = (Task) TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+        
+         
+        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
+        
+        
+        assertEquals(1, allGroupAuditTasks.size());
+
+        taskService.claim(taskId, "Darth Vader"); 
+        
+        taskService.exit(taskId, "Administrator");
+        
+    }
    
 }
