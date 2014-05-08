@@ -26,10 +26,11 @@ public interface FileStorageService {
 
     /**
      * Method to store the uploaded file on the system
-     * @param file          The File that is going to be stored
+     * @param docName       The name of the document to store
+     * @param content       The document content
      * @return              A Document
      */
-    Document saveDocument(File file);
+    Document saveDocument(String docName, byte[] content);
 
     /**
      * Method to obtain a File for the given storage id

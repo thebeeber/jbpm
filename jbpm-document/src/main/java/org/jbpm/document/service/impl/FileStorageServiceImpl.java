@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,18 +45,18 @@ public class FileStorageServiceImpl implements FileStorageService {
     private String storagePath = ".docs";
 
     @Override
-    public Document saveDocument(File file) {
+    public Document saveDocument(String docName, byte[] content) {
+        String destinationPath = generateUniquePath(docName);
+        File destination = new File(destinationPath);
+
         try {
-            String destinationPath = generateUniquePath(file.getName());
+            FileUtils.writeByteArrayToFile(destination, content);
 
-            File destination = new File(destinationPath);
-
-            FileUtils.copyFile(file, destination);
-
-            return new DocumentImpl(destinationPath, file.getName(), file.length(), new Date(destination.lastModified()));
-        } catch (Exception ex) {
-
+            return new DocumentImpl(destinationPath, destination.getName(), destination.length(), new Date(destination.lastModified()));
+        } catch (IOException e) {
+            log.error("Error writing file {}: {}", docName, e);
         }
+
         return null;
     }
 
@@ -109,7 +110,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 }
             }
         } catch (Exception e) {
-            log.warn("Error deleting file: ", e);
+            log.error("Error deleting file: ", e);
             return false;
         }
         return true;
