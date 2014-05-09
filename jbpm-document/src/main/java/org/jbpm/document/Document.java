@@ -30,4 +30,6 @@ public interface Document extends Serializable {
     String getAttribute(String attributeName);
 
     void addAttribute(String attributeName, String attributeValue);
+
+    byte[] getContent();
 }
