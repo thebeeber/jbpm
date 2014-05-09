@@ -22,7 +22,7 @@ import java.io.File;
 /**
  * Simple storage service definition
  */
-public interface FileStorageService {
+public interface DocumentStorageService {
 
     /**
      * Method to store the uploaded file on the system
@@ -52,11 +52,4 @@ public interface FileStorageService {
      * @return              true if it was possible to remove, false if not
      */
     boolean deleteDocument(Document document);
-
-    /**
-     * Retrieves the content of the given Document
-     * @param document      The document which content is going to be returned.
-     * @return              The document's content
-     */
-    File getDocumentContent(Document document);
 }

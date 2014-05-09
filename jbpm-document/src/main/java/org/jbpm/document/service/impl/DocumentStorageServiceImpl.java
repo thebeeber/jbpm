@@ -18,26 +18,24 @@ package org.jbpm.document.service.impl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jbpm.document.Document;
-import org.jbpm.document.service.FileStorageService;
+import org.jbpm.document.service.DocumentStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
- * This a Sample Implementation of the FileStorageService saves the uploaded files on the File System on a folder (by default /docs)
+ * This a Sample Implementation of the DocumentStorageService saves the uploaded files on the File System on a folder (by default /docs)
  * and return the complete path to the file that will be stored in the form field property.
  *
  * Check that the user that is running the app has write permissions on the storage folder.
  */
-public class FileStorageServiceImpl implements FileStorageService {
+public class DocumentStorageServiceImpl implements DocumentStorageService {
 
-    private Logger log = LoggerFactory.getLogger(FileStorageServiceImpl.class);
+    private Logger log = LoggerFactory.getLogger(DocumentStorageServiceImpl.class);
 
     /**
      * This is the root folder where the files are going to be stored, please check that the user that is running the app has permissions to read/write inside
@@ -85,7 +83,6 @@ public class FileStorageServiceImpl implements FileStorageService {
         return true;
     }
 
-    @Override
     public File getDocumentContent(Document doc) {
         if (doc != null) {
             return new File(doc.getIdentifier());
@@ -129,58 +126,5 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (!destinationPath.endsWith("/")) destinationPath += "/";
 
         return destinationPath + "/" + fileName;
-    }
-
-    private class DocumentImpl implements Document {
-        private String identifier;
-        private String name;
-        private long size;
-        private Date lastModified;
-
-        private Map<String, String> attributes;
-
-        public DocumentImpl(String identifier, String name, long size, Date lastModified) {
-            this.identifier = identifier;
-            this.name = name;
-            this.size = size;
-            this.lastModified = lastModified;
-
-            attributes = new HashMap<String, String>();
-        }
-
-        public String getIdentifier() {
-            return identifier;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public long getSize() {
-            return size;
-        }
-
-        public Date getLastModified() {
-            return lastModified;
-        }
-
-        public String getAttribute(String attributeName) {
-            return attributes.get(attributeName);
-        }
-
-        public void addAttribute(String attributeName, String attributeValue) {
-            attributes.put(attributeName, attributeValue);
-        }
-
-        @Override
-        public String toString() {
-            return "Document{" +
-                    "identifier='" + identifier + '\'' +
-                    ", name='" + name + '\'' +
-                    ", size=" + size +
-                    ", lastModified=" + lastModified +
-                    ", attributes=" + attributes +
-                    '}';
-        }
     }
 }
