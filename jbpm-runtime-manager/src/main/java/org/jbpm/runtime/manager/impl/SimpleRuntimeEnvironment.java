@@ -23,6 +23,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 
 import org.drools.core.impl.EnvironmentFactory;
+import org.jbpm.document.marshalling.DocumentMarshallingStrategy;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
 import org.jbpm.process.core.timer.GlobalSchedulerService;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
@@ -202,15 +203,18 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         addIfPresent(EnvironmentName.TRANSACTION, copy);
         addIfPresent(EnvironmentName.USE_LOCAL_TRANSACTIONS, copy);
         addIfPresent(EnvironmentName.USE_PESSIMISTIC_LOCKING, copy);
-        
+
+        ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) copy.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);
+        List<ObjectMarshallingStrategy> listStrategies = new ArrayList<ObjectMarshallingStrategy>(Arrays.asList(strategies));
+
+        listStrategies.add(0, new DocumentMarshallingStrategy());
+
         if (usePersistence()) {
-            ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) copy.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);        
-            
-            List<ObjectMarshallingStrategy> listStrategies = new ArrayList<ObjectMarshallingStrategy>(Arrays.asList(strategies));
             listStrategies.add(0, new ProcessInstanceResolverStrategy());
-            strategies = new ObjectMarshallingStrategy[listStrategies.size()];  
-            copy.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, listStrategies.toArray(strategies));
         }
+        strategies = new ObjectMarshallingStrategy[listStrategies.size()];
+        copy.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, listStrategies.toArray(strategies));
+
         // copy if present in environment template which in general should not be used 
         // unless with some framework support to make EM thread safe - like spring 
         addIfPresent(EnvironmentName.APP_SCOPED_ENTITY_MANAGER, copy);

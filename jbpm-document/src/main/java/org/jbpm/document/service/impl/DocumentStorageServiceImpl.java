@@ -15,6 +15,7 @@
  */
 package org.jbpm.document.service.impl;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jbpm.document.Document;
@@ -43,27 +44,35 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
     private String storagePath = ".docs";
 
     @Override
-    public Document saveDocument(String docName, byte[] content) {
-        String destinationPath = generateUniquePath(docName);
+    public Document saveDocument(Document document, byte[] content) {
+        if (document == null || !StringUtils.isEmpty(document.getIdentifier())) return document;
+        String destinationPath = generateUniquePath(document.getName());
         File destination = new File(destinationPath);
 
         try {
             FileUtils.writeByteArrayToFile(destination, content);
 
-            return new DocumentImpl(destinationPath, destination.getName(), destination.length(), new Date(destination.lastModified()));
+            document.setIdentifier(Base64.encodeBase64String(destinationPath.getBytes()));
+
         } catch (IOException e) {
-            log.error("Error writing file {}: {}", docName, e);
+            log.error("Error writing file {}: {}", document.getName(), e);
         }
 
-        return null;
+        return document;
     }
 
     @Override
     public Document getDocument(String id) {
-        File file = new File(id);
+        File file = new File(new String(Base64.decodeBase64(id)));
 
         if (file.exists()) {
-            return new DocumentImpl(id, file.getName(), file.length(), new Date(file.lastModified()));
+            try {
+                Document doc = new DocumentImpl(id, file.getName(), file.length(), new Date(file.lastModified()));
+                doc.setContent(FileUtils.readFileToByteArray(file));
+                return doc;
+            } catch (IOException e) {
+                log.error("Error loading document '{}': {}", id, e);
+            }
         }
 
         return null;
