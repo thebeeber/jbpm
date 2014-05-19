@@ -1,21 +1,14 @@
 package org.jbpm.document.service.impl;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.jbpm.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DocumentImpl implements Document {
-    private Logger log = LoggerFactory.getLogger(DocumentImpl.class);
     private String identifier;
     private String name;
+    private String link;
     private long size;
     private Date lastModified;
     private byte[] content;
@@ -58,6 +51,16 @@ public class DocumentImpl implements Document {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    @Override
+    public String getLink() {
+        return this.link;
     }
 
     @Override

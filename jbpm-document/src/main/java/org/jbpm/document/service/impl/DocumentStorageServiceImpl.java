@@ -54,6 +54,10 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
 
             document.setIdentifier(Base64.encodeBase64String(destinationPath.getBytes()));
 
+            // Generating a default download link, don't use this donwloader in real environments use it as an example
+            String link = "Controller?_fb=fdch&_fp=download&content=" + document.getIdentifier();
+            document.setLink(link);
+
         } catch (IOException e) {
             log.error("Error writing file {}: {}", document.getName(), e);
         }

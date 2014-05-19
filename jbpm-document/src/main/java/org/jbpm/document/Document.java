@@ -37,6 +37,10 @@ public interface Document extends Serializable {
 
     Date getLastModified();
 
+    void setLink(String link);
+
+    String getLink();
+
     String getAttribute(String attributeName);
 
     void addAttribute(String attributeName, String attributeValue);
