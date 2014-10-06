@@ -19,29 +19,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.StringReader;
 import java.util.HashMap;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
 import org.jbpm.services.task.impl.factories.TaskFactory;
-import org.jbpm.services.task.impl.model.TaskImpl;
-import org.junit.Assume;
 import org.junit.Test;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
-
-import bitronix.tm.TransactionManagerServices;
 
 /**
  *
  */
 public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
-   
-    public abstract EntityManagerFactory getEmf();
     
     @Test
     public void noActionStrategy() throws Exception {
@@ -171,25 +158,19 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
     @Test
     public void onSubtaskCompletionAutoCompleteParentStrategyWithLotsOfTasks() throws Exception {
 
-        String tableName = TaskImpl.class.getAnnotation(Table.class).name();
-                
-        TransactionManagerServices.getTransactionManager().begin();
-        try { 
-            EntityManager em = getEmf().createEntityManager();
-            Query query = em.createNativeQuery(
-                    "select SEQUENCE_NAME from INFORMATION_SCHEMA.COLUMNS "
-                            + "where TABLE_NAME = '" + tableName.toUpperCase() + "' "
-                            + " and SEQUENCE_NAME IS NOT null");
-            String seqName = (String) query.getSingleResult();
-            query = em.createNativeQuery("alter sequence " + seqName + " increment by 1000");
-            query.executeUpdate();
-        } catch( Throwable t ) { 
-            // underlying database is NOT h2, skip test
-            Assume.assumeFalse(true);
-        } finally { 
-            TransactionManagerServices.getTransactionManager().commit();
-        }
-    	
+    	for( int i = 0; i < 500; i++ ) {
+    		
+            // One potential owner, should go straight to state Reserved
+            String tt = "(with (new Task()) { subTaskStrategy = SubTasksStrategy.EndParentOnAllSubTasksEnd,  priority = 55, taskData = (with( new TaskData()) { } ), ";
+            tt += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy')  ],businessAdministrators = [ new User('Administrator') ], }),";
+            tt += "names = [ new I18NText( 'en-UK', 'This is my task Parent name')] })";
+            // By default the task will contain a SubTask SubTasksStrategy.NoAction
+
+            Task t = TaskFactory.evalTask(new StringReader(tt));
+//            ((TaskImpl)parentTask).setId(1000);
+            taskService.addTask(t, new HashMap<String, Object>());
+    		
+    	}
          // One potential owner, should go straight to state Reserved
         String parentTaskstr = "(with (new Task()) { subTaskStrategy = SubTasksStrategy.EndParentOnAllSubTasksEnd,  priority = 55, taskData = (with( new TaskData()) { } ), ";
         parentTaskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy')  ],businessAdministrators = [ new User('Administrator') ], }),";
@@ -197,6 +178,7 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
         // By default the task will contain a SubTask SubTasksStrategy.NoAction
 
         Task parentTask = TaskFactory.evalTask(new StringReader(parentTaskstr));
+//        ((TaskImpl)parentTask).setId(1000);
         taskService.addTask(parentTask, new HashMap<String, Object>());
 
         long taskParentId = parentTask.getId();
